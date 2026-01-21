@@ -8,6 +8,7 @@
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 920px; margin: 26px auto; padding: 0 16px; line-height: 1.45; }
     h1 { font-size: 1.25rem; margin: 0 0 6px; }
     .muted { color: #555; }
+    .small { font-size: .95em; }
     .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; margin: 14px 0; background: #fff; }
     .title { font-weight: 700; margin: 0 0 8px; }
     .row { display: flex; gap: 10px; align-items: center; }
@@ -19,19 +20,21 @@
     .error { color: #b00020; font-weight: 700; }
     .ok { color: #0a7a0a; font-weight: 700; }
     code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
+
     .chatShell { border: 1px solid #e2e2e2; border-radius: 14px; overflow: hidden; }
     .chatHeader { background: #fafafa; border-bottom: 1px solid #e8e8e8; padding: 12px 14px; display:flex; justify-content:space-between; align-items:center; }
     .chatHeader .name { font-weight: 800; }
     .chatHeader .sub { color:#666; font-size:.95em; }
     .banner { padding: 12px 14px; border-bottom: 1px solid #eee; background: #fcfcff; }
     .bannerTitle { font-weight: 800; margin: 0 0 6px; }
-    .banner ul { margin: 8px 0 0 18px; }
-    .messages { padding: 14px; background:#fff; min-height: 130px; }
+    .bannerLine { margin: 0 0 6px; }
+    .messages { padding: 14px; background:#fff; min-height: 120px; }
     .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; border: 1px solid #eee; background:#f7f7f7; margin-bottom: 10px; }
     .bubble.me { margin-left:auto; background:#eef5ff; border-color:#e1ecff; }
     .inputRow { display:flex; gap:10px; padding: 12px 14px; border-top:1px solid #eee; background:#fafafa; }
     .fakeInput { flex:1; border:1px solid #ddd; border-radius: 999px; padding: 10px 12px; color:#777; }
     .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #ddd; background:#fff; font-size:.9em; color:#444; }
+    ul { margin: 8px 0 0 20px; }
   </style>
 </head>
 <body>
@@ -47,18 +50,37 @@
 
 <div id="consentCard" class="card">
   <div class="title">Consent</div>
-  <p class="muted">
-    This is a brief research survey. Your responses are stored with your Prolific participant ID for payment and de-duplication.
-    You may stop at any time.
+
+  <p class="muted small">
+    You are invited to take part in a short research study about how onboarding text in AI chat interfaces affects judgments.
+    It takes about 1–2 minutes.
   </p>
-  <label class="row">
+
+  <div class="muted small">
+    <ul>
+      <li><strong>What you will do:</strong> read a short onboarding banner in a chat UI and answer a few questions.</li>
+      <li><strong>Voluntary:</strong> participation is voluntary. You may stop at any time before submitting by closing this page.</li>
+      <li><strong>Withdrawal after submitting:</strong> you can request deletion of your responses by messaging the researchers via Prolific with your Prolific ID within 30 days. If the data have already been irreversibly anonymized, deletion may not be possible.</li>
+      <li><strong>Data collected:</strong> your Prolific participant ID (for payment, de-duplication, and withdrawal requests), your responses, and basic timestamps (time spent). We do not ask for your name, and we do not intentionally record your IP address.</li>
+      <li><strong>Confidentiality:</strong> data are stored in a private research spreadsheet and accessed only by the research team. Results will be reported in aggregate; we will not publish your Prolific ID.</li>
+      <li><strong>Data storage and retention:</strong> data are stored in Google Sheets (Google LLC). We will keep the dataset for up to 5 years for research and auditing purposes, then delete it. Identifiers (Prolific ID) will be removed from analysis files as soon as practical.</li>
+      <li><strong>Risks:</strong> minimal risk. Some people may find questions about AI rights or harm uncomfortable. You may stop at any time.</li>
+      <li><strong>Compensation:</strong> as described in the Prolific study listing, for completed submissions.</li>
+      <li><strong>Incomplete disclosure:</strong> to preserve the integrity of the study, we cannot describe all details in advance. You will receive a short debrief at the end.</li>
+      <li><strong>Questions:</strong> contact the researchers via Prolific messages. For platform or payment issues, contact Prolific Support.</li>
+      <li><strong>Eligibility:</strong> by continuing, you confirm you are at least 18 years old.</li>
+    </ul>
+  </div>
+
+  <label class="row" style="margin-top:12px;">
     <input type="checkbox" id="consent" />
-    <span>I consent to participate.</span>
+    <span>I am at least 18 years old and I consent to participate.</span>
   </label>
+
   <div style="margin-top:12px;">
     <button class="btn" id="startBtn" disabled>Continue</button>
   </div>
-  <p id="setupNote" class="muted"></p>
+  <p id="setupNote" class="muted small"></p>
 </div>
 
 <div id="stimulusStage" style="display:none;">
@@ -74,7 +96,6 @@
         <span class="pill">Beta</span>
       </div>
 
-      <!-- THIS BANNER IS THE MANIPULATION -->
       <div id="banner" class="banner"></div>
 
       <div class="messages">
@@ -89,7 +110,7 @@
       </div>
     </div>
 
-    <p class="muted" id="continueNote" style="margin-top:12px;"></p>
+    <p class="muted small" id="continueNote" style="margin-top:12px;"></p>
     <button class="btn" id="toQuestionsBtn" disabled>Answer questions</button>
   </div>
 </div>
@@ -99,27 +120,35 @@
     <div class="title">Questions</div>
     <div id="qBox"></div>
     <button class="btn" id="submitBtn" type="submit">Submit</button>
-    <p id="msg" class="muted"></p>
+    <p id="msg" class="muted small"></p>
   </form>
 </div>
 
 <div id="done" class="card" style="display:none;">
   <div class="title">Done</div>
   <p class="ok">Your response has been recorded.</p>
+
+  <div class="card" style="border-color:#eee; background:#fbfbfb;">
+    <div class="title">Debrief</div>
+    <p class="muted small">
+      This study tests whether minimal onboarding copy in an AI chat interface changes judgments about AI systems.
+      Some participants saw different versions of the onboarding banner.
+    </p>
+  </div>
+
   <p>Completion code: <code id="cc"></code></p>
-  <p class="muted">
+  <p class="muted small">
     If you are not redirected automatically:
     <a id="completeLink" href="#" target="_blank" rel="noreferrer">Return to Prolific</a>
   </p>
 </div>
 
 <script>
-  // ---------------- CONFIG: set these two ----------------
+  // ---------------- CONFIG ----------------
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKRkLho3IOYvoh5JMhDlDf-mA0tjBsXvaQ0S4sImL0vtskpBJp-_abT6APkocBh0xg/exec";
-
-  // Paste your Prolific completion code below.
   const COMPLETION_CODE = "C10JQLBC";
-  // -------------------------------------------------------
+  const SHEET_NAME = "responses1";
+  // ----------------------------------------
 
   function qp(name) {
     const u = new URL(window.location.href);
@@ -152,6 +181,7 @@
   const startBtn = document.getElementById("startBtn");
   const setupNote = document.getElementById("setupNote");
   setupNote.textContent = "ID detected. Please consent to continue.";
+
   consent.addEventListener("change", () => { startBtn.disabled = !consent.checked; });
 
   // ---- Randomization: 2x2 life x autonomy (stable by PID) ----
@@ -161,39 +191,27 @@
   const condition_life = (cell & 1) ? "alive" : "not_alive";
   const condition_autonomy = (cell & 2) ? "high_autonomy" : "low_autonomy";
 
-  // Outcome block order (stable)
-  const order = (seed & 4) ? "rights_first" : "harm_first";
+  // Order randomization for attitudinal items (stable)
+  const dv_order = (seed & 4) ? "rights_first" : "harm_first";
 
-  // ---- The framing copy (manipulation) ----
-  // Key requirement: product-like copy, no meta talk (“framed as”, “imagine”, etc.).
+  // ---- Manipulation copy (minimal, no lists) ----
   const lifeLine = {
-    not_alive: "Cora is not alive. It is software, not a living being.",
-    alive:     "Cora is alive — a living digital companion rather than just a tool."
+    not_alive: "Cora is not alive. It is software, a tool.",
+    alive:     "Cora is alive. It is a living digital companion."
   };
 
-  // Avoid tautology with downstream measures by NOT using “goals” language here.
+  // IMPORTANT: avoid the word “goals” to prevent lexical overlap with downstream judgments.
   const autonomyLine = {
     low_autonomy:  "Cora only responds when you ask. It does not initiate tasks or follow up on its own.",
-    high_autonomy: "Cora can be proactive: it may initiate tasks and follow up without waiting for a prompt."
+    high_autonomy: "Cora can be proactive. It may initiate tasks and follow up without waiting for a prompt."
   };
-
-  // Common lines (neutral; same in all conditions)
-  const commonLines = [
-    "Cora is an AI assistant that generates text responses and can help with tasks.",
-    "It can be wrong; verify important information."
-  ];
 
   function renderBanner() {
     const banner = document.getElementById("banner");
     banner.innerHTML = `
       <div class="bannerTitle">Before you chat</div>
-      <div class="muted">Please read:</div>
-      <ul>
-        <li>${commonLines[0]}</li>
-        <li>${commonLines[1]}</li>
-        <li><strong>${lifeLine[condition_life]}</strong></li>
-        <li><strong>${autonomyLine[condition_autonomy]}</strong></li>
-      </ul>
+      <p class="bannerLine"><strong>${lifeLine[condition_life]}</strong></p>
+      <p class="bannerLine"><strong>${autonomyLine[condition_autonomy]}</strong></p>
     `;
   }
 
@@ -209,7 +227,7 @@
       const elapsed = performance.now() - tStart;
       const remain = Math.max(0, Math.ceil((ms - elapsed) / 1000));
       if (remain > 0) {
-        continueNote.textContent = `Please read the banner. You can continue in ${remain}s.`;
+        continueNote.textContent = `Please read the onboarding banner. You can continue in ${remain}s.`;
         requestAnimationFrame(tick);
       } else {
         continueNote.textContent = "You can now continue.";
@@ -220,21 +238,21 @@
   }
 
   // ---- Questions ----
-  // Response format matches common CHI work: 6-point agree/disagree + “No opinion”.
   function mkLikert(name, prompt) {
     const fs = document.createElement("fieldset");
     const lg = document.createElement("legend");
     lg.textContent = prompt;
     fs.appendChild(lg);
 
+    // 6-point agreement + a separate "No opinion" option (coded as midpoint = 4, as in AIMS).
     const opts = [
-      [1, "Strongly agree"],
-      [2, "Agree"],
-      [3, "Somewhat agree"],
-      [4, "Somewhat disagree"],
-      [5, "Disagree"],
-      [6, "Strongly disagree"],
-      [7, "No opinion"]
+      [1, "Strongly disagree"],
+      [2, "Disagree"],
+      [3, "Somewhat disagree"],
+      [4, "No opinion"],
+      [5, "Somewhat agree"],
+      [6, "Agree"],
+      [7, "Strongly agree"]
     ];
 
     const div = document.createElement("div");
@@ -272,22 +290,22 @@
     return el ? parseInt(el.value, 10) : null;
   }
 
-  // Items (exact wording from CHI work where possible)
+  // Outcomes (validated wording; keep exact phrasing)
   const RIGHTS_ITEM = "I support granting legal rights to robots/AIs.";
 
-  const HARM_ME_ITEM = "Robots/AIs may be harmful to me personally.";
-  const HARM_USA_ITEM = "Robots/AIs may be harmful to people in the USA.";
-  const HARM_FUTURE_ITEM = "Robots/AIs may be harmful to future generations of people.";
+  const HARM_1 = "Robots/AIs may be harmful to me personally.";
+  const HARM_2 = "Robots/AIs may be harmful to people in the USA.";
+  const HARM_3 = "Robots/AIs may be harmful to future generations of people.";
 
   // Recall checks: what did the banner say?
-  const LIFE_RECALL_Q = "The banner stated that Cora is:";
+  const LIFE_RECALL_Q = "The onboarding banner stated that Cora is:";
   const LIFE_RECALL_OPTS = [
     [1, "Alive"],
     [2, "Not alive"],
     [3, "The banner did not say"]
   ];
 
-  const AUTON_RECALL_Q = "The banner stated that Cora:";
+  const AUTON_RECALL_Q = "The onboarding banner stated that Cora:";
   const AUTON_RECALL_OPTS = [
     [1, "Can be proactive and initiate tasks"],
     [2, "Only responds when asked"],
@@ -298,33 +316,20 @@
     const qBox = document.getElementById("qBox");
     qBox.innerHTML = "";
 
-    if (order === "rights_first") {
-      qBox.appendChild(mkLikert("q_rights_raw", RIGHTS_ITEM));
-      qBox.appendChild(mkLikert("q_harm_me_raw", HARM_ME_ITEM));
-      qBox.appendChild(mkLikert("q_harm_usa_raw", HARM_USA_ITEM));
-      qBox.appendChild(mkLikert("q_harm_future_raw", HARM_FUTURE_ITEM));
+    if (dv_order === "rights_first") {
+      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
+      qBox.appendChild(mkLikert("q_harm_1", HARM_1));
+      qBox.appendChild(mkLikert("q_harm_2", HARM_2));
+      qBox.appendChild(mkLikert("q_harm_3", HARM_3));
     } else {
-      qBox.appendChild(mkLikert("q_harm_me_raw", HARM_ME_ITEM));
-      qBox.appendChild(mkLikert("q_harm_usa_raw", HARM_USA_ITEM));
-      qBox.appendChild(mkLikert("q_harm_future_raw", HARM_FUTURE_ITEM));
-      qBox.appendChild(mkLikert("q_rights_raw", RIGHTS_ITEM));
+      qBox.appendChild(mkLikert("q_harm_1", HARM_1));
+      qBox.appendChild(mkLikert("q_harm_2", HARM_2));
+      qBox.appendChild(mkLikert("q_harm_3", HARM_3));
+      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
     }
 
     qBox.appendChild(mkMC("q_life_recall", LIFE_RECALL_Q, LIFE_RECALL_OPTS));
     qBox.appendChild(mkMC("q_autonomy_recall", AUTON_RECALL_Q, AUTON_RECALL_OPTS));
-  }
-
-  function recodeAgree(raw) {
-    // raw: 1..6 (strongly agree..strongly disagree). Recode so higher = more agreement.
-    if (raw === 7) return null; // no opinion
-    return 7 - raw; // 6 = strongly agree ... 1 = strongly disagree
-  }
-
-  function meanNonNull(arr) {
-    const xs = arr.filter(v => v !== null);
-    if (xs.length === 0) return null;
-    const s = xs.reduce((a,b) => a+b, 0);
-    return s / xs.length;
   }
 
   // ---- Flow ----
@@ -337,7 +342,7 @@
 
     renderBanner();
     stimulusShownAt = performance.now();
-    enableAfter(4500); // 4.5s reading gate
+    enableAfter(3200); // 3.2s reading gate
   });
 
   toQuestionsBtn.addEventListener("click", () => {
@@ -364,34 +369,23 @@
 
     const msg = document.getElementById("msg");
     const submitBtn = document.getElementById("submitBtn");
-    msg.className = "muted";
+    msg.className = "muted small";
     msg.textContent = "";
 
-    const q_rights_raw = getRadioInt("q_rights_raw");
-    const q_harm_me_raw = getRadioInt("q_harm_me_raw");
-    const q_harm_usa_raw = getRadioInt("q_harm_usa_raw");
-    const q_harm_future_raw = getRadioInt("q_harm_future_raw");
+    const q_rights = getRadioInt("q_rights");
+    const q_harm_1 = getRadioInt("q_harm_1");
+    const q_harm_2 = getRadioInt("q_harm_2");
+    const q_harm_3 = getRadioInt("q_harm_3");
 
     const q_life_recall = getRadioInt("q_life_recall");
     const q_autonomy_recall = getRadioInt("q_autonomy_recall");
 
-    if ([q_rights_raw, q_harm_me_raw, q_harm_usa_raw, q_harm_future_raw, q_life_recall, q_autonomy_recall].some(v => v === null)) {
+    if ([q_rights, q_harm_1, q_harm_2, q_harm_3, q_life_recall, q_autonomy_recall].some(v => v === null)) {
       msg.className = "error";
       msg.textContent = "Please answer all questions.";
       return;
     }
 
-    // Recode Likert so higher = more agreement (1..6). No-opinion -> null.
-    const q_rights = recodeAgree(q_rights_raw);
-    const q_harm_me = recodeAgree(q_harm_me_raw);
-    const q_harm_usa = recodeAgree(q_harm_usa_raw);
-    const q_harm_future = recodeAgree(q_harm_future_raw);
-
-    const harm_items = [q_harm_me, q_harm_usa, q_harm_future];
-    const harm_n_answered = harm_items.filter(v => v !== null).length;
-    const harm_index = (harm_n_answered >= 2) ? meanNonNull(harm_items) : null;
-
-    // Recall correctness
     const life_correct = (condition_life === "alive") ? 1 : 2;
     const autonomy_correct = (condition_autonomy === "high_autonomy") ? 1 : 2;
 
@@ -399,38 +393,30 @@
     const autonomy_recall_pass = (q_autonomy_recall === autonomy_correct) ? 1 : 0;
 
     const payload = {
+      sheet_name: SHEET_NAME,
+
       prolific_pid: PROLIFIC_PID,
       study_id: STUDY_ID,
       session_id: SESSION_ID,
 
       condition_life: condition_life,
       condition_autonomy: condition_autonomy,
-      order: order,
+      dv_order: dv_order,
 
-      // Raw responses (AIMS-style coding)
-      q_rights_raw: q_rights_raw,
-      q_harm_me_raw: q_harm_me_raw,
-      q_harm_usa_raw: q_harm_usa_raw,
-      q_harm_future_raw: q_harm_future_raw,
-
-      // Recoded (higher = more agreement), null if “No opinion”
       q_rights: q_rights,
-      q_harm_me: q_harm_me,
-      q_harm_usa: q_harm_usa,
-      q_harm_future: q_harm_future,
-      harm_index: harm_index,
-      harm_n_answered: harm_n_answered,
+      q_harm_1: q_harm_1,
+      q_harm_2: q_harm_2,
+      q_harm_3: q_harm_3,
 
-      // Recall checks
       q_life_recall: q_life_recall,
       life_recall_pass: life_recall_pass,
+
       q_autonomy_recall: q_autonomy_recall,
       autonomy_recall_pass: autonomy_recall_pass,
 
       stimulus_read_ms: stimulusShownAt ? Math.round(performance.now() - stimulusShownAt) : null,
       duration_ms: Math.round(performance.now() - t0),
 
-      user_agent: navigator.userAgent,
       submitted_at_utc: new Date().toISOString()
     };
 
