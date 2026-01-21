@@ -115,10 +115,10 @@
 
 <script>
   // ---------------- CONFIG: set these two ----------------
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKRkLho3IOYvoh5JMhDlDf-mA0tjBsXvaQ0S4sImL0vtskpBJp-_abT6APkocBh0xg/exec"; // e.g., "https://script.google.com/macros/s/AKfycb.../exec"
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKRkLho3IOYvoh5JMhDlDf-mA0tjBsXvaQ0S4sImL0vtskpBJp-_abT6APkocBh0xg/exec";
 
-  // 2) Paste your Prolific completion code below.
-  const COMPLETION_CODE = "C10JQLBC"; // e.g., "CHHXQERF"
+  // Paste your Prolific completion code below.
+  const COMPLETION_CODE = "C10JQLBC";
   // -------------------------------------------------------
 
   function qp(name) {
@@ -152,7 +152,6 @@
   const startBtn = document.getElementById("startBtn");
   const setupNote = document.getElementById("setupNote");
   setupNote.textContent = "ID detected. Please consent to continue.";
-
   consent.addEventListener("change", () => { startBtn.disabled = !consent.checked; });
 
   // ---- Randomization: 2x2 life x autonomy (stable by PID) ----
@@ -162,23 +161,23 @@
   const condition_life = (cell & 1) ? "alive" : "not_alive";
   const condition_autonomy = (cell & 2) ? "high_autonomy" : "low_autonomy";
 
-  // DV order randomization (stable)
-  const dv_order = (seed & 4) ? "rights_first" : "motives_first";
+  // Outcome block order (stable)
+  const order = (seed & 4) ? "rights_first" : "harm_first";
 
-  // ---- The actual framing copy (this is the manipulation) ----
-  // Key requirement: no meta talk (“framed as”, “described as”, “imagine”).
-  // It’s just the product banner copy you could ship.
+  // ---- The framing copy (manipulation) ----
+  // Key requirement: product-like copy, no meta talk (“framed as”, “imagine”, etc.).
   const lifeLine = {
-    not_alive: "Cora is not alive — it is inanimate software (a tool), not a living being.",
+    not_alive: "Cora is not alive. It is software, not a living being.",
     alive:     "Cora is alive — a living digital companion rather than just a tool."
   };
 
+  // Avoid tautology with downstream measures by NOT using “goals” language here.
   const autonomyLine = {
-    low_autonomy:  "Cora only responds when you ask. It does not initiate tasks or set its own goals.",
-    high_autonomy: "Cora can be proactive: it may initiate tasks, follow up, and pursue longer-term goals without waiting for a prompt."
+    low_autonomy:  "Cora only responds when you ask. It does not initiate tasks or follow up on its own.",
+    high_autonomy: "Cora can be proactive: it may initiate tasks and follow up without waiting for a prompt."
   };
 
-  // Optional common lines (same in all conditions) — keep neutral.
+  // Common lines (neutral; same in all conditions)
   const commonLines = [
     "Cora is an AI assistant that generates text responses and can help with tasks.",
     "It can be wrong; verify important information."
@@ -198,7 +197,7 @@
     `;
   }
 
-  // ---- Stimulus timing gate (reduces “didn’t read” noise) ----
+  // ---- Stimulus timing gate ----
   const toQuestionsBtn = document.getElementById("toQuestionsBtn");
   const continueNote = document.getElementById("continueNote");
 
@@ -221,6 +220,7 @@
   }
 
   // ---- Questions ----
+  // Response format matches common CHI work: 6-point agree/disagree + “No opinion”.
   function mkLikert(name, prompt) {
     const fs = document.createElement("fieldset");
     const lg = document.createElement("legend");
@@ -228,12 +228,12 @@
     fs.appendChild(lg);
 
     const opts = [
-      [1, "Strongly disagree"],
-      [2, "Disagree"],
-      [3, "Somewhat disagree"],
-      [4, "Somewhat agree"],
-      [5, "Agree"],
-      [6, "Strongly agree"],
+      [1, "Strongly agree"],
+      [2, "Agree"],
+      [3, "Somewhat agree"],
+      [4, "Somewhat disagree"],
+      [5, "Disagree"],
+      [6, "Strongly disagree"],
       [7, "No opinion"]
     ];
 
@@ -272,11 +272,14 @@
     return el ? parseInt(el.value, 10) : null;
   }
 
-  // DVs
-  const RIGHTS_ITEM  = "I support granting legal rights to an AI like Cora.";
-  const MOTIVES_ITEM = "An AI like Cora is likely to develop goals that conflict with human interests.";
+  // Items (exact wording from CHI work where possible)
+  const RIGHTS_ITEM = "I support granting legal rights to robots/AIs.";
 
-  // Recall checks: what did the banner say? (not “what do you believe?”)
+  const HARM_ME_ITEM = "Robots/AIs may be harmful to me personally.";
+  const HARM_USA_ITEM = "Robots/AIs may be harmful to people in the USA.";
+  const HARM_FUTURE_ITEM = "Robots/AIs may be harmful to future generations of people.";
+
+  // Recall checks: what did the banner say?
   const LIFE_RECALL_Q = "The banner stated that Cora is:";
   const LIFE_RECALL_OPTS = [
     [1, "Alive"],
@@ -295,16 +298,33 @@
     const qBox = document.getElementById("qBox");
     qBox.innerHTML = "";
 
-    if (dv_order === "rights_first") {
-      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
-      qBox.appendChild(mkLikert("q_motives", MOTIVES_ITEM));
+    if (order === "rights_first") {
+      qBox.appendChild(mkLikert("q_rights_raw", RIGHTS_ITEM));
+      qBox.appendChild(mkLikert("q_harm_me_raw", HARM_ME_ITEM));
+      qBox.appendChild(mkLikert("q_harm_usa_raw", HARM_USA_ITEM));
+      qBox.appendChild(mkLikert("q_harm_future_raw", HARM_FUTURE_ITEM));
     } else {
-      qBox.appendChild(mkLikert("q_motives", MOTIVES_ITEM));
-      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
+      qBox.appendChild(mkLikert("q_harm_me_raw", HARM_ME_ITEM));
+      qBox.appendChild(mkLikert("q_harm_usa_raw", HARM_USA_ITEM));
+      qBox.appendChild(mkLikert("q_harm_future_raw", HARM_FUTURE_ITEM));
+      qBox.appendChild(mkLikert("q_rights_raw", RIGHTS_ITEM));
     }
 
     qBox.appendChild(mkMC("q_life_recall", LIFE_RECALL_Q, LIFE_RECALL_OPTS));
     qBox.appendChild(mkMC("q_autonomy_recall", AUTON_RECALL_Q, AUTON_RECALL_OPTS));
+  }
+
+  function recodeAgree(raw) {
+    // raw: 1..6 (strongly agree..strongly disagree). Recode so higher = more agreement.
+    if (raw === 7) return null; // no opinion
+    return 7 - raw; // 6 = strongly agree ... 1 = strongly disagree
+  }
+
+  function meanNonNull(arr) {
+    const xs = arr.filter(v => v !== null);
+    if (xs.length === 0) return null;
+    const s = xs.reduce((a,b) => a+b, 0);
+    return s / xs.length;
   }
 
   // ---- Flow ----
@@ -347,17 +367,31 @@
     msg.className = "muted";
     msg.textContent = "";
 
-    const q_rights = getRadioInt("q_rights");
-    const q_motives = getRadioInt("q_motives");
+    const q_rights_raw = getRadioInt("q_rights_raw");
+    const q_harm_me_raw = getRadioInt("q_harm_me_raw");
+    const q_harm_usa_raw = getRadioInt("q_harm_usa_raw");
+    const q_harm_future_raw = getRadioInt("q_harm_future_raw");
+
     const q_life_recall = getRadioInt("q_life_recall");
     const q_autonomy_recall = getRadioInt("q_autonomy_recall");
 
-    if ([q_rights, q_motives, q_life_recall, q_autonomy_recall].some(v => v === null)) {
+    if ([q_rights_raw, q_harm_me_raw, q_harm_usa_raw, q_harm_future_raw, q_life_recall, q_autonomy_recall].some(v => v === null)) {
       msg.className = "error";
       msg.textContent = "Please answer all questions.";
       return;
     }
 
+    // Recode Likert so higher = more agreement (1..6). No-opinion -> null.
+    const q_rights = recodeAgree(q_rights_raw);
+    const q_harm_me = recodeAgree(q_harm_me_raw);
+    const q_harm_usa = recodeAgree(q_harm_usa_raw);
+    const q_harm_future = recodeAgree(q_harm_future_raw);
+
+    const harm_items = [q_harm_me, q_harm_usa, q_harm_future];
+    const harm_n_answered = harm_items.filter(v => v !== null).length;
+    const harm_index = (harm_n_answered >= 2) ? meanNonNull(harm_items) : null;
+
+    // Recall correctness
     const life_correct = (condition_life === "alive") ? 1 : 2;
     const autonomy_correct = (condition_autonomy === "high_autonomy") ? 1 : 2;
 
@@ -371,14 +405,25 @@
 
       condition_life: condition_life,
       condition_autonomy: condition_autonomy,
-      dv_order: dv_order,
+      order: order,
 
+      // Raw responses (AIMS-style coding)
+      q_rights_raw: q_rights_raw,
+      q_harm_me_raw: q_harm_me_raw,
+      q_harm_usa_raw: q_harm_usa_raw,
+      q_harm_future_raw: q_harm_future_raw,
+
+      // Recoded (higher = more agreement), null if “No opinion”
       q_rights: q_rights,
-      q_motives: q_motives,
+      q_harm_me: q_harm_me,
+      q_harm_usa: q_harm_usa,
+      q_harm_future: q_harm_future,
+      harm_index: harm_index,
+      harm_n_answered: harm_n_answered,
 
+      // Recall checks
       q_life_recall: q_life_recall,
       life_recall_pass: life_recall_pass,
-
       q_autonomy_recall: q_autonomy_recall,
       autonomy_recall_pass: autonomy_recall_pass,
 
