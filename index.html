@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatbot Onboarding Copy Study</title>
+  <title>Short Survey</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 920px; margin: 26px auto; padding: 0 16px; line-height: 1.45; }
     h1 { font-size: 1.25rem; margin: 0 0 6px; }
     .muted { color: #555; }
-    .small { font-size: .95em; }
     .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; margin: 14px 0; background: #fff; }
     .title { font-weight: 700; margin: 0 0 8px; }
     .row { display: flex; gap: 10px; align-items: center; }
@@ -20,21 +19,20 @@
     .error { color: #b00020; font-weight: 700; }
     .ok { color: #0a7a0a; font-weight: 700; }
     code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
-
     .chatShell { border: 1px solid #e2e2e2; border-radius: 14px; overflow: hidden; }
     .chatHeader { background: #fafafa; border-bottom: 1px solid #e8e8e8; padding: 12px 14px; display:flex; justify-content:space-between; align-items:center; }
     .chatHeader .name { font-weight: 800; }
     .chatHeader .sub { color:#666; font-size:.95em; }
     .banner { padding: 12px 14px; border-bottom: 1px solid #eee; background: #fcfcff; }
     .bannerTitle { font-weight: 800; margin: 0 0 6px; }
-    .bannerLine { margin: 0 0 6px; }
     .messages { padding: 14px; background:#fff; min-height: 120px; }
     .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; border: 1px solid #eee; background:#f7f7f7; margin-bottom: 10px; }
     .bubble.me { margin-left:auto; background:#eef5ff; border-color:#e1ecff; }
     .inputRow { display:flex; gap:10px; padding: 12px 14px; border-top:1px solid #eee; background:#fafafa; }
     .fakeInput { flex:1; border:1px solid #ddd; border-radius: 999px; padding: 10px 12px; color:#777; }
     .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #ddd; background:#fff; font-size:.9em; color:#444; }
-    ul { margin: 8px 0 0 20px; }
+    ul { margin: 8px 0 0 18px; }
+    .small { font-size: .95em; }
   </style>
 </head>
 <body>
@@ -50,37 +48,25 @@
 
 <div id="consentCard" class="card">
   <div class="title">Consent</div>
-
-  <p class="muted small">
-    You are invited to take part in a short research study about how onboarding text in AI chat interfaces affects judgments.
-    It takes about 1–2 minutes.
-  </p>
-
   <div class="muted small">
-    <ul>
-      <li><strong>What you will do:</strong> read a short onboarding banner in a chat UI and answer a few questions.</li>
-      <li><strong>Voluntary:</strong> participation is voluntary. You may stop at any time before submitting by closing this page.</li>
-      <li><strong>Withdrawal after submitting:</strong> you can request deletion of your responses by messaging the researchers via Prolific with your Prolific ID within 30 days. If the data have already been irreversibly anonymized, deletion may not be possible.</li>
-      <li><strong>Data collected:</strong> your Prolific participant ID (for payment, de-duplication, and withdrawal requests), your responses, and basic timestamps (time spent). We do not ask for your name, and we do not intentionally record your IP address.</li>
-      <li><strong>Confidentiality:</strong> data are stored in a private research spreadsheet and accessed only by the research team. Results will be reported in aggregate; we will not publish your Prolific ID.</li>
-      <li><strong>Data storage and retention:</strong> data are stored in Google Sheets (Google LLC). We will keep the dataset for up to 5 years for research and auditing purposes, then delete it. Identifiers (Prolific ID) will be removed from analysis files as soon as practical.</li>
-      <li><strong>Risks:</strong> minimal risk. Some people may find questions about AI rights or harm uncomfortable. You may stop at any time.</li>
-      <li><strong>Compensation:</strong> as described in the Prolific study listing, for completed submissions.</li>
-      <li><strong>Incomplete disclosure:</strong> to preserve the integrity of the study, we cannot describe all details in advance. You will receive a short debrief at the end.</li>
-      <li><strong>Questions:</strong> contact the researchers via Prolific messages. For platform or payment issues, contact Prolific Support.</li>
-      <li><strong>Eligibility:</strong> by continuing, you confirm you are at least 18 years old.</li>
-    </ul>
+    <p><strong>What you will do:</strong> You will view a short chat-interface mockup containing one sentence about an AI assistant, then answer a brief set of questions. This takes about 2 minutes.</p>
+    <p><strong>Voluntary participation:</strong> Participation is voluntary. You may stop at any time by closing the browser tab. If you stop before submitting, you will not receive a completion code.</p>
+    <p><strong>Risks and discomfort:</strong> Some questions ask about attitudes toward robots/AIs (e.g., legal rights and potential harms). You may select “No opinion” for any question.</p>
+    <p><strong>Benefits:</strong> There is no direct benefit to you.</p>
+    <p><strong>Compensation:</strong> Compensation is provided via Prolific according to the study posting.</p>
+    <p><strong>Data and privacy:</strong> We store your survey responses together with your Prolific participant ID for payment processing and de-duplication. We also store basic technical metadata (completion time and browser user agent). Data are stored in a Google Sheets file accessible only to the research team. Results will be reported in aggregate and may be shared in de-identified form.</p>
+    <p><strong>Questions or withdrawal after submission:</strong> You can contact the researcher via Prolific messages. If you request withdrawal after submitting, provide your Prolific ID; withdrawal will be honored where feasible.</p>
+    <p><strong>Eligibility:</strong> By continuing, you confirm you are at least 18 years old.</p>
   </div>
 
-  <label class="row" style="margin-top:12px;">
+  <label class="row">
     <input type="checkbox" id="consent" />
-    <span>I am at least 18 years old and I consent to participate.</span>
+    <span>I consent to participate.</span>
   </label>
-
   <div style="margin-top:12px;">
     <button class="btn" id="startBtn" disabled>Continue</button>
   </div>
-  <p id="setupNote" class="muted small"></p>
+  <p id="setupNote" class="muted"></p>
 </div>
 
 <div id="stimulusStage" style="display:none;">
@@ -96,6 +82,7 @@
         <span class="pill">Beta</span>
       </div>
 
+      <!-- Manipulated statement -->
       <div id="banner" class="banner"></div>
 
       <div class="messages">
@@ -110,7 +97,7 @@
       </div>
     </div>
 
-    <p class="muted small" id="continueNote" style="margin-top:12px;"></p>
+    <p class="muted" id="continueNote" style="margin-top:12px;"></p>
     <button class="btn" id="toQuestionsBtn" disabled>Answer questions</button>
   </div>
 </div>
@@ -120,24 +107,15 @@
     <div class="title">Questions</div>
     <div id="qBox"></div>
     <button class="btn" id="submitBtn" type="submit">Submit</button>
-    <p id="msg" class="muted small"></p>
+    <p id="msg" class="muted"></p>
   </form>
 </div>
 
 <div id="done" class="card" style="display:none;">
   <div class="title">Done</div>
   <p class="ok">Your response has been recorded.</p>
-
-  <div class="card" style="border-color:#eee; background:#fbfbfb;">
-    <div class="title">Debrief</div>
-    <p class="muted small">
-      This study tests whether minimal onboarding copy in an AI chat interface changes judgments about AI systems.
-      Some participants saw different versions of the onboarding banner.
-    </p>
-  </div>
-
   <p>Completion code: <code id="cc"></code></p>
-  <p class="muted small">
+  <p class="muted">
     If you are not redirected automatically:
     <a id="completeLink" href="#" target="_blank" rel="noreferrer">Return to Prolific</a>
   </p>
@@ -148,7 +126,7 @@
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKRkLho3IOYvoh5JMhDlDf-mA0tjBsXvaQ0S4sImL0vtskpBJp-_abT6APkocBh0xg/exec";
   const COMPLETION_CODE = "C10JQLBC";
   const SHEET_NAME = "responses1";
-  // ----------------------------------------
+  // ---------------------------------------
 
   function qp(name) {
     const u = new URL(window.location.href);
@@ -173,45 +151,36 @@
   const SESSION_ID = qp("SESSION_ID");
 
   if (!PROLIFIC_PID) showFatal("Missing PROLIFIC_PID in the URL.");
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR")) showFatal("APPS_SCRIPT_URL is not configured in index.html.");
-  if (!COMPLETION_CODE || COMPLETION_CODE.includes("PASTE_YOUR")) showFatal("COMPLETION_CODE is not configured in index.html.");
+  if (!APPS_SCRIPT_URL) showFatal("APPS_SCRIPT_URL is not configured.");
+  if (!COMPLETION_CODE) showFatal("COMPLETION_CODE is not configured.");
 
   // Consent gating
   const consent = document.getElementById("consent");
   const startBtn = document.getElementById("startBtn");
   const setupNote = document.getElementById("setupNote");
   setupNote.textContent = "ID detected. Please consent to continue.";
-
   consent.addEventListener("change", () => { startBtn.disabled = !consent.checked; });
 
-  // ---- Randomization: 2x2 life x autonomy (stable by PID) ----
+  // ---- Randomization: 2x2 Concept x Polarity (stable by PID) ----
   const seed = djb2(PROLIFIC_PID + "|" + (STUDY_ID || ""));
   const cell = seed % 4;
 
-  const condition_life = (cell & 1) ? "alive" : "not_alive";
-  const condition_autonomy = (cell & 2) ? "high_autonomy" : "low_autonomy";
+  const condition_concept = (cell & 1) ? "alive" : "sentient";  // 0/2: sentient, 1/3: alive
+  const condition_polarity = (cell & 2) ? "is_not" : "is";      // 0/1: is, 2/3: is_not
 
-  // Order randomization for attitudinal items (stable)
+  // DV order randomization (stable)
   const dv_order = (seed & 4) ? "rights_first" : "harm_first";
 
-  // ---- Manipulation copy (minimal, no lists) ----
-  const lifeLine = {
-    not_alive: "Cora is not alive. It is software, a tool.",
-    alive:     "Cora is alive. It is a living digital companion."
-  };
-
-  // IMPORTANT: avoid the word “goals” to prevent lexical overlap with downstream judgments.
-  const autonomyLine = {
-    low_autonomy:  "Cora only responds when you ask. It does not initiate tasks or follow up on its own.",
-    high_autonomy: "Cora can be proactive. It may initiate tasks and follow up without waiting for a prompt."
+  const statement = {
+    alive:   { is: "Cora is alive.",   is_not: "Cora is not alive." },
+    sentient:{ is: "Cora is sentient.",is_not: "Cora is not sentient." }
   };
 
   function renderBanner() {
     const banner = document.getElementById("banner");
     banner.innerHTML = `
       <div class="bannerTitle">Before you chat</div>
-      <p class="bannerLine"><strong>${lifeLine[condition_life]}</strong></p>
-      <p class="bannerLine"><strong>${autonomyLine[condition_autonomy]}</strong></p>
+      <div><strong>${statement[condition_concept][condition_polarity]}</strong></div>
     `;
   }
 
@@ -227,7 +196,7 @@
       const elapsed = performance.now() - tStart;
       const remain = Math.max(0, Math.ceil((ms - elapsed) / 1000));
       if (remain > 0) {
-        continueNote.textContent = `Please read the onboarding banner. You can continue in ${remain}s.`;
+        continueNote.textContent = `Please read the statement. You can continue in ${remain}s.`;
         requestAnimationFrame(tick);
       } else {
         continueNote.textContent = "You can now continue.";
@@ -238,21 +207,21 @@
   }
 
   // ---- Questions ----
-  function mkLikert(name, prompt) {
+  // AIMS response format: 1-6 agree/disagree + unnumbered no-opinion option.
+  function mkAimsLikert(name, prompt) {
     const fs = document.createElement("fieldset");
     const lg = document.createElement("legend");
     lg.textContent = prompt;
     fs.appendChild(lg);
 
-    // 6-point agreement + a separate "No opinion" option (coded as midpoint = 4, as in AIMS).
     const opts = [
-      [1, "Strongly disagree"],
-      [2, "Disagree"],
-      [3, "Somewhat disagree"],
-      [4, "No opinion"],
-      [5, "Somewhat agree"],
-      [6, "Agree"],
-      [7, "Strongly agree"]
+      [1, "Strongly agree"],
+      [2, "Agree"],
+      [3, "Somewhat agree"],
+      [4, "Somewhat disagree"],
+      [5, "Disagree"],
+      [6, "Strongly disagree"],
+      [7, "No opinion"]
     ];
 
     const div = document.createElement("div");
@@ -290,46 +259,47 @@
     return el ? parseInt(el.value, 10) : null;
   }
 
-  // Outcomes (validated wording; keep exact phrasing)
+  // --- Outcomes (AIMS wording) ---
   const RIGHTS_ITEM = "I support granting legal rights to robots/AIs.";
-
   const HARM_1 = "Robots/AIs may be harmful to me personally.";
   const HARM_2 = "Robots/AIs may be harmful to people in the USA.";
   const HARM_3 = "Robots/AIs may be harmful to future generations of people.";
 
-  // Recall checks: what did the banner say?
-  const LIFE_RECALL_Q = "The onboarding banner stated that Cora is:";
-  const LIFE_RECALL_OPTS = [
+  // Exploratory clarity (single item)
+  const CLARITY_ITEM = "The statement about Cora was clear.";
+
+  // Recall check (not used for exclusion)
+  const RECALL_Q = "The statement said that Cora is:";
+  const RECALL_OPTS = [
     [1, "Alive"],
     [2, "Not alive"],
-    [3, "The banner did not say"]
-  ];
-
-  const AUTON_RECALL_Q = "The onboarding banner stated that Cora:";
-  const AUTON_RECALL_OPTS = [
-    [1, "Can be proactive and initiate tasks"],
-    [2, "Only responds when asked"],
-    [3, "The banner did not say"]
+    [3, "Sentient"],
+    [4, "Not sentient"],
+    [5, "The statement did not say"]
   ];
 
   function renderQuestions() {
     const qBox = document.getElementById("qBox");
     qBox.innerHTML = "";
 
+    // DVs first
     if (dv_order === "rights_first") {
-      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
-      qBox.appendChild(mkLikert("q_harm_1", HARM_1));
-      qBox.appendChild(mkLikert("q_harm_2", HARM_2));
-      qBox.appendChild(mkLikert("q_harm_3", HARM_3));
+      qBox.appendChild(mkAimsLikert("q_rights", RIGHTS_ITEM));
+      qBox.appendChild(mkAimsLikert("q_harm1", HARM_1));
+      qBox.appendChild(mkAimsLikert("q_harm2", HARM_2));
+      qBox.appendChild(mkAimsLikert("q_harm3", HARM_3));
     } else {
-      qBox.appendChild(mkLikert("q_harm_1", HARM_1));
-      qBox.appendChild(mkLikert("q_harm_2", HARM_2));
-      qBox.appendChild(mkLikert("q_harm_3", HARM_3));
-      qBox.appendChild(mkLikert("q_rights", RIGHTS_ITEM));
+      qBox.appendChild(mkAimsLikert("q_harm1", HARM_1));
+      qBox.appendChild(mkAimsLikert("q_harm2", HARM_2));
+      qBox.appendChild(mkAimsLikert("q_harm3", HARM_3));
+      qBox.appendChild(mkAimsLikert("q_rights", RIGHTS_ITEM));
     }
 
-    qBox.appendChild(mkMC("q_life_recall", LIFE_RECALL_Q, LIFE_RECALL_OPTS));
-    qBox.appendChild(mkMC("q_autonomy_recall", AUTON_RECALL_Q, AUTON_RECALL_OPTS));
+    // Exploratory
+    qBox.appendChild(mkAimsLikert("q_clarity", CLARITY_ITEM));
+
+    // Recall last
+    qBox.appendChild(mkMC("q_recall", RECALL_Q, RECALL_OPTS));
   }
 
   // ---- Flow ----
@@ -342,7 +312,7 @@
 
     renderBanner();
     stimulusShownAt = performance.now();
-    enableAfter(3200); // 3.2s reading gate
+    enableAfter(3000); // 3.0s reading gate
   });
 
   toQuestionsBtn.addEventListener("click", () => {
@@ -369,28 +339,30 @@
 
     const msg = document.getElementById("msg");
     const submitBtn = document.getElementById("submitBtn");
-    msg.className = "muted small";
+    msg.className = "muted";
     msg.textContent = "";
 
     const q_rights = getRadioInt("q_rights");
-    const q_harm_1 = getRadioInt("q_harm_1");
-    const q_harm_2 = getRadioInt("q_harm_2");
-    const q_harm_3 = getRadioInt("q_harm_3");
+    const q_harm1 = getRadioInt("q_harm1");
+    const q_harm2 = getRadioInt("q_harm2");
+    const q_harm3 = getRadioInt("q_harm3");
+    const q_clarity = getRadioInt("q_clarity");
+    const q_recall = getRadioInt("q_recall");
 
-    const q_life_recall = getRadioInt("q_life_recall");
-    const q_autonomy_recall = getRadioInt("q_autonomy_recall");
-
-    if ([q_rights, q_harm_1, q_harm_2, q_harm_3, q_life_recall, q_autonomy_recall].some(v => v === null)) {
+    if ([q_rights, q_harm1, q_harm2, q_harm3, q_clarity, q_recall].some(v => v === null)) {
       msg.className = "error";
       msg.textContent = "Please answer all questions.";
       return;
     }
 
-    const life_correct = (condition_life === "alive") ? 1 : 2;
-    const autonomy_correct = (condition_autonomy === "high_autonomy") ? 1 : 2;
+    // Correct recall option
+    let correct = 5; // default "did not say"
+    if (condition_concept === "alive" && condition_polarity === "is") correct = 1;
+    if (condition_concept === "alive" && condition_polarity === "is_not") correct = 2;
+    if (condition_concept === "sentient" && condition_polarity === "is") correct = 3;
+    if (condition_concept === "sentient" && condition_polarity === "is_not") correct = 4;
 
-    const life_recall_pass = (q_life_recall === life_correct) ? 1 : 0;
-    const autonomy_recall_pass = (q_autonomy_recall === autonomy_correct) ? 1 : 0;
+    const recall_pass = (q_recall === correct) ? 1 : 0;
 
     const payload = {
       sheet_name: SHEET_NAME,
@@ -399,24 +371,24 @@
       study_id: STUDY_ID,
       session_id: SESSION_ID,
 
-      condition_life: condition_life,
-      condition_autonomy: condition_autonomy,
+      condition_concept: condition_concept,
+      condition_polarity: condition_polarity,
       dv_order: dv_order,
 
       q_rights: q_rights,
-      q_harm_1: q_harm_1,
-      q_harm_2: q_harm_2,
-      q_harm_3: q_harm_3,
+      q_harm1: q_harm1,
+      q_harm2: q_harm2,
+      q_harm3: q_harm3,
 
-      q_life_recall: q_life_recall,
-      life_recall_pass: life_recall_pass,
+      q_clarity: q_clarity,
 
-      q_autonomy_recall: q_autonomy_recall,
-      autonomy_recall_pass: autonomy_recall_pass,
+      q_recall: q_recall,
+      recall_pass: recall_pass,
 
       stimulus_read_ms: stimulusShownAt ? Math.round(performance.now() - stimulusShownAt) : null,
       duration_ms: Math.round(performance.now() - t0),
 
+      user_agent: navigator.userAgent,
       submitted_at_utc: new Date().toISOString()
     };
 
