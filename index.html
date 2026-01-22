@@ -172,6 +172,13 @@
   </p>
 </div>
 
+<!-- Screen-out (no completion code) -->
+<div id="failed" class="card" style="display:none;">
+  <div class="title">Study ended</div>
+  <p class="error">You did not pass a required checkpoint, so you will not receive a completion code.</p>
+  <p class="muted">Please return the study on Prolific.</p>
+</div>
+
 <script>
   // ---------------- CONFIG ----------------
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKRkLho3IOYvoh5JMhDlDf-mA0tjBsXvaQ0S4sImL0vtskpBJp-_abT6APkocBh0xg/exec";
@@ -451,8 +458,8 @@
     [5, "The statement did not say"]
   ];
 
-  // Hard attention check (gated)
-  const ATTN_Q = "Attention check: Please select “Somewhat disagree” for this question.";
+  // Instructional response item (used for exclusion)
+  const INSTR_Q = "Please select “Somewhat disagree” for this question.";
 
   const submitBtn = document.getElementById("submitBtn");
   const minTimeNote = document.getElementById("minTimeNote");
@@ -505,8 +512,8 @@
     // Recall last (as planned)
     qBox.appendChild(mkMC("q_recall", RECALL_Q, RECALL_OPTS));
 
-    // Hard attention check (added; gated)
-    qBox.appendChild(mkAimsLikert("q_attn", ATTN_Q));
+    // Instruction item (used for exclusion)
+    qBox.appendChild(mkAimsLikert("q_attn", INSTR_Q));
   }
 
   // ---- Flow ----
@@ -587,32 +594,27 @@
       return;
     }
 
-    // Hard attention check gate: must be "Somewhat disagree" (value 4)
-    const attention_pass = (q_attn === 4) ? 1 : 0;
-    if (!attention_pass) {
-      markMissing("q_attn");
-      msg.className = "error";
-      msg.textContent = "Please follow the instruction in the attention check to continue.";
-      scrollToQuestion("q_attn");
-      return;
-    }
-
-    // Optional response-quality confirmation (does not block, but prevents accidental straightlining)
+    // Always ask final-confirmation on submit (rating scales page)
     const mainBlock = [q_rights, q_harm1, q_harm2, q_harm3, q_clarity];
     const allSame = mainBlock.every(v => v === mainBlock[0]);
     const allNoOpinion = mainBlock.every(v => v === 7);
 
+    let confirmText =
+      "Submit your responses now?\n\nYou will not be able to change your answers after submitting.";
+
     if (allNoOpinion) {
-      const ok = window.confirm(
-        "You selected “No opinion” for every attitude question. Click OK to submit if this is intentional, or Cancel to review your answers."
-      );
-      if (!ok) return;
+      confirmText =
+        "You selected “No opinion” for every attitude question.\n\nSubmit your responses now?\n\nYou will not be able to change your answers after submitting.";
     } else if (allSame) {
-      const ok = window.confirm(
-        "You selected the same response for every attitude question. This can be correct. Click OK to submit if intentional, or Cancel to review your answers."
-      );
-      if (!ok) return;
+      confirmText =
+        "You selected the same response for every attitude question.\n\nSubmit your responses now?\n\nYou will not be able to change your answers after submitting.";
     }
+
+    const finalOk = window.confirm(confirmText);
+    if (!finalOk) return;
+
+    // Must match instruction item: "Somewhat disagree" (value 4)
+    const attention_pass = (q_attn === 4) ? 1 : 0;
 
     // Correct recall option (not used for exclusion)
     let correct = 5; // default "did not say"
@@ -644,7 +646,7 @@
       q_recall: q_recall,
       recall_pass: recall_pass,
 
-      // Added QC fields (do not alter levers/DVs)
+      // QC fields (do not alter levers/DVs)
       q_attn: q_attn,
       attention_pass: attention_pass,
       stimulus_time_gate_pass: stimulusTimeOk ? 1 : 0,
@@ -663,23 +665,39 @@
     msg.className = "muted";
     msg.textContent = "Submitting...";
 
+    let sendOk = true;
     try {
       await send(payload);
-
-      document.getElementById("questionStage").style.display = "none";
-      document.getElementById("done").style.display = "block";
-      document.getElementById("cc").textContent = COMPLETION_CODE;
-
-      const url = prolificCompletionUrl(COMPLETION_CODE);
-      document.getElementById("completeLink").href = url;
-
-      setTimeout(() => { window.location.href = url; }, 800);
     } catch (err) {
       console.error(err);
+      sendOk = false;
+    }
+
+    // If submission failed AND they would otherwise pass, allow retry
+    if (!sendOk && attention_pass) {
       submitBtn.disabled = false;
       msg.className = "error";
       msg.textContent = "Submission failed. Please try again. If it persists, return the study on Prolific.";
+      return;
     }
+
+    // Screen out if instruction item is incorrect (no completion code, no redirect)
+    if (!attention_pass) {
+      document.getElementById("questionStage").style.display = "none";
+      document.getElementById("failed").style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // Otherwise: complete as normal
+    document.getElementById("questionStage").style.display = "none";
+    document.getElementById("done").style.display = "block";
+    document.getElementById("cc").textContent = COMPLETION_CODE;
+
+    const url = prolificCompletionUrl(COMPLETION_CODE);
+    document.getElementById("completeLink").href = url;
+
+    setTimeout(() => { window.location.href = url; }, 800);
   });
 </script>
 
