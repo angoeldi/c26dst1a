@@ -137,7 +137,7 @@
     <fieldset id="checkpointFs">
       <legend>Checkpoint (required)</legend>
       <p class="muted small" style="margin:0 0 10px;">
-        Type the exact sentence shown in the banner above (including the word "not" if present). You cannot continue until it matches.
+        Type the exact sentence shown in the "Before you chat" box above (including the word "not" if present).
       </p>
       <input id="stimulusCopy" class="textInput" type="text" autocomplete="off" spellcheck="false" placeholder="Type the sentence here" />
       <p id="stimulusCopyMsg" class="muted small" style="margin:8px 0 0;"></p>
@@ -332,7 +332,7 @@
     if (!stimulusCopy.value.trim()) {
       stimulusCopyOk = false;
       stimulusCopyMsg.className = "muted small";
-      stimulusCopyMsg.textContent = "Type the sentence exactly as shown in the banner.";
+      stimulusCopyMsg.textContent = 'Type the sentence exactly as shown in the "Before you chat" box above.';
       updateToQuestionsEnabled();
       return;
     }
@@ -350,7 +350,7 @@
     } else {
       stimulusCopyOk = false;
       stimulusCopyMsg.className = "error small";
-      stimulusCopyMsg.textContent = "That does not match the banner. Please look at the banner and type it exactly.";
+      stimulusCopyMsg.textContent = 'That does not match the sentence in the "Before you chat" box. Please copy it exactly.';
     }
 
     updateToQuestionsEnabled();
