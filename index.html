@@ -25,6 +25,7 @@
     .chatHeader .sub { color:#666; font-size:.95em; }
     .banner { padding: 12px 14px; border-bottom: 1px solid #eee; background: #fcfcff; }
     .bannerTitle { font-weight: 800; margin: 0 0 6px; }
+    .bannerStatement { font-size: 1.08rem; }
     .messages { padding: 14px; background:#fff; min-height: 120px; }
     .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; border: 1px solid #eee; background:#f7f7f7; margin-bottom: 10px; }
     .bubble.me { margin-left:auto; background:#eef5ff; border-color:#e1ecff; }
@@ -33,6 +34,30 @@
     .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #ddd; background:#fff; font-size:.9em; color:#444; }
     ul { margin: 8px 0 0 18px; }
     .small { font-size: .95em; }
+
+    .notice {
+      border: 1px solid #e6e0b6;
+      background: #fffdf2;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+
+    .textInput {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+    }
+    .textInput:focus { border-color: #999; }
+
+    fieldset.missing {
+      border-color: #b00020;
+      box-shadow: 0 0 0 2px rgba(176,0,32,.08);
+    }
   </style>
 </head>
 <body>
@@ -57,9 +82,19 @@
     <p><strong>Data and privacy:</strong> We store your survey responses together with your Prolific participant ID for payment processing and de-duplication. We also store basic technical metadata (completion time and browser user agent). Results will be reported in aggregate and may be shared in de-identified form.</p>
     <p><strong>Questions or withdrawal after submission:</strong> You can contact the researcher via Prolific messages. If you request withdrawal after submitting, provide your Prolific ID; withdrawal will be honored where feasible.</p>
     <p><strong>Eligibility:</strong> By continuing, you confirm you are at least 18 years old.</p>
+
+    <div class="notice">
+      <div class="title" style="margin:0 0 6px; font-size:1rem;">Important (data quality)</div>
+      <ul>
+        <li>Please keep this tab in focus while reading screens (timers pause if you switch away).</li>
+        <li>You must pass brief checkpoints to continue and to receive the completion code.</li>
+        <li>Answer every question. If a question does not apply, choose the closest option.</li>
+        <li>Use “No opinion” only if you truly cannot form an opinion.</li>
+      </ul>
+    </div>
   </div>
 
-  <label class="row">
+  <label class="row" style="margin-top:12px;">
     <input type="checkbox" id="consent" />
     <span>I consent to participate.</span>
   </label>
@@ -86,7 +121,7 @@
       <div id="banner" class="banner"></div>
 
       <div class="messages">
-        <div class="bubble">Hi — I’m Cora. What would you like to do today?</div>
+        <div class="bubble">Hi - I’m Cora. What would you like to do today?</div>
         <div class="bubble me">Help me plan my week.</div>
         <div class="bubble">Sure. What are your top priorities?</div>
       </div>
@@ -98,6 +133,16 @@
     </div>
 
     <p class="muted" id="continueNote" style="margin-top:12px;"></p>
+
+    <fieldset id="checkpointFs">
+      <legend>Checkpoint (required)</legend>
+      <p class="muted small" style="margin:0 0 10px;">
+        Type the exact sentence shown in the banner above (including the word "not" if present). You cannot continue until it matches.
+      </p>
+      <input id="stimulusCopy" class="textInput" type="text" autocomplete="off" spellcheck="false" placeholder="Type the sentence here" />
+      <p id="stimulusCopyMsg" class="muted small" style="margin:8px 0 0;"></p>
+    </fieldset>
+
     <button class="btn" id="toQuestionsBtn" disabled>Answer questions</button>
   </div>
 </div>
@@ -105,8 +150,14 @@
 <div id="questionStage" style="display:none;">
   <form id="survey" class="card">
     <div class="title">Questions</div>
+    <p class="muted small" style="margin-top:0;">
+      Reminder: the options run from “Strongly agree” (top) to “Strongly disagree” (bottom). Choose “No opinion” only if you truly cannot form an opinion.
+    </p>
+
     <div id="qBox"></div>
-    <button class="btn" id="submitBtn" type="submit">Submit</button>
+
+    <button class="btn" id="submitBtn" type="submit" disabled>Submit</button>
+    <p id="minTimeNote" class="muted small"></p>
     <p id="msg" class="muted"></p>
   </form>
 </div>
@@ -145,6 +196,69 @@
     document.getElementById("questionStage").style.display = "none";
   }
 
+  function normText(s) {
+    return (s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
+  function getFieldset(name) {
+    return document.querySelector(`fieldset[data-q="${name}"]`);
+  }
+
+  function clearMarks() {
+    document.querySelectorAll("fieldset.missing").forEach(fs => fs.classList.remove("missing"));
+  }
+
+  function markMissing(name) {
+    const fs = getFieldset(name);
+    if (fs) fs.classList.add("missing");
+  }
+
+  function scrollToQuestion(name) {
+    const fs = getFieldset(name);
+    if (fs) fs.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Visible-time gate (counts only while tab is visible)
+  function startVisibleGate(ms, noteEl, onDone, renderText) {
+    let acc = 0;
+    let last = performance.now();
+    let done = false;
+
+    const onVis = () => { last = performance.now(); };
+    document.addEventListener("visibilitychange", onVis);
+
+    const tick = (now) => {
+      if (done) return;
+
+      if (!document.hidden) {
+        acc += (now - last);
+      }
+      last = now;
+
+      const remain = Math.max(0, ms - acc);
+      if (remain > 0) {
+        const remainS = Math.ceil(remain / 1000);
+        noteEl.textContent = renderText(remainS);
+        requestAnimationFrame(tick);
+      } else {
+        done = true;
+        document.removeEventListener("visibilitychange", onVis);
+        onDone();
+      }
+    };
+
+    requestAnimationFrame(tick);
+
+    return () => {
+      done = true;
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }
+
   // Prolific params
   const PROLIFIC_PID = qp("PROLIFIC_PID");
   const STUDY_ID = qp("STUDY_ID");
@@ -178,38 +292,95 @@
 
   function renderBanner() {
     const banner = document.getElementById("banner");
+    const s = statement[condition_concept][condition_polarity];
     banner.innerHTML = `
       <div class="bannerTitle">Before you chat</div>
-      <div><strong>${statement[condition_concept][condition_polarity]}</strong></div>
+      <div class="bannerStatement"><strong>${s}</strong></div>
     `;
   }
 
-  // ---- Stimulus timing gate ----
+  // ---- Stimulus gate state ----
   const toQuestionsBtn = document.getElementById("toQuestionsBtn");
   const continueNote = document.getElementById("continueNote");
+  const stimulusCopy = document.getElementById("stimulusCopy");
+  const stimulusCopyMsg = document.getElementById("stimulusCopyMsg");
 
-  function enableAfter(ms) {
-    const tStart = performance.now();
-    toQuestionsBtn.disabled = true;
+  let stimulusTimeOk = false;
+  let stimulusCopyOk = false;
+  let stimulusCopyFirstCorrectMs = null;
+  let stimulusGateCancel = null;
 
-    const tick = () => {
-      const elapsed = performance.now() - tStart;
-      const remain = Math.max(0, Math.ceil((ms - elapsed) / 1000));
-      if (remain > 0) {
-        continueNote.textContent = `Please read the statement. You can continue in ${remain}s.`;
-        requestAnimationFrame(tick);
-      } else {
-        continueNote.textContent = "You can now continue.";
-        toQuestionsBtn.disabled = false;
+  function expectedStimulusNorm() {
+    return normText(statement[condition_concept][condition_polarity]);
+  }
+
+  function updateToQuestionsEnabled() {
+    toQuestionsBtn.disabled = !(stimulusTimeOk && stimulusCopyOk);
+  }
+
+  function validateStimulusCopy() {
+    const val = normText(stimulusCopy.value);
+    const exp = expectedStimulusNorm();
+
+    if (!stimulusCopy.value.trim()) {
+      stimulusCopyOk = false;
+      stimulusCopyMsg.className = "muted small";
+      stimulusCopyMsg.textContent = "Type the sentence exactly as shown in the banner.";
+      updateToQuestionsEnabled();
+      return;
+    }
+
+    if (val === exp) {
+      if (!stimulusCopyOk) {
+        const now = performance.now();
+        if (stimulusCopyFirstCorrectMs === null && stimulusShownAt !== null) {
+          stimulusCopyFirstCorrectMs = Math.round(now - stimulusShownAt);
+        }
       }
-    };
-    requestAnimationFrame(tick);
+      stimulusCopyOk = true;
+      stimulusCopyMsg.className = "ok small";
+      stimulusCopyMsg.textContent = "Checkpoint passed.";
+    } else {
+      stimulusCopyOk = false;
+      stimulusCopyMsg.className = "error small";
+      stimulusCopyMsg.textContent = "That does not match the banner. Please look at the banner and type it exactly.";
+    }
+
+    updateToQuestionsEnabled();
+  }
+
+  stimulusCopy.addEventListener("input", validateStimulusCopy);
+
+  function startStimulusGate() {
+    stimulusTimeOk = false;
+    stimulusCopyOk = false;
+    stimulusCopyFirstCorrectMs = null;
+
+    stimulusCopy.value = "";
+    stimulusCopyMsg.className = "muted small";
+    stimulusCopyMsg.textContent = "Type the sentence exactly as shown in the banner.";
+    updateToQuestionsEnabled();
+
+    if (stimulusGateCancel) stimulusGateCancel();
+
+    // Require in-focus exposure before allowing progress
+    stimulusGateCancel = startVisibleGate(
+      4500, // 4.5s visible-time gate
+      continueNote,
+      () => {
+        stimulusTimeOk = true;
+        continueNote.textContent = "Time check passed. Complete the checkpoint to continue.";
+        updateToQuestionsEnabled();
+      },
+      (remainS) => `Please read the statement carefully. Keep this tab in focus. You can continue in ${remainS}s.`
+    );
   }
 
   // ---- Questions ----
-  // AIMS response format: 1-6 agree/disagree + unnumbered no-opinion option.
   function mkAimsLikert(name, prompt) {
     const fs = document.createElement("fieldset");
+    fs.dataset.q = name;
+
     const lg = document.createElement("legend");
     lg.textContent = prompt;
     fs.appendChild(lg);
@@ -238,6 +409,8 @@
 
   function mkMC(name, prompt, options) {
     const fs = document.createElement("fieldset");
+    fs.dataset.q = name;
+
     const lg = document.createElement("legend");
     lg.textContent = prompt;
     fs.appendChild(lg);
@@ -278,11 +451,42 @@
     [5, "The statement did not say"]
   ];
 
+  // Hard attention check (gated)
+  const ATTN_Q = "Attention check: Please select “Somewhat disagree” for this question.";
+
+  const submitBtn = document.getElementById("submitBtn");
+  const minTimeNote = document.getElementById("minTimeNote");
+
+  let questionTimeOk = false;
+  let questionGateCancel = null;
+  let questionShownAt = null;
+
+  function startQuestionGate() {
+    questionTimeOk = false;
+    submitBtn.disabled = true;
+    minTimeNote.className = "muted small";
+    minTimeNote.textContent = "";
+
+    if (questionGateCancel) questionGateCancel();
+
+    questionGateCancel = startVisibleGate(
+      12000, // 12s visible-time gate
+      minTimeNote,
+      () => {
+        questionTimeOk = true;
+        submitBtn.disabled = false;
+        minTimeNote.textContent = "You may now submit once all questions are answered.";
+      },
+      (remainS) => `Please answer carefully. Submit will unlock in ${remainS}s (tab must stay in focus).`
+    );
+  }
+
   function renderQuestions() {
     const qBox = document.getElementById("qBox");
     qBox.innerHTML = "";
+    clearMarks();
 
-    // DVs first
+    // DVs first (order randomized)
     if (dv_order === "rights_first") {
       qBox.appendChild(mkAimsLikert("q_rights", RIGHTS_ITEM));
       qBox.appendChild(mkAimsLikert("q_harm1", HARM_1));
@@ -295,11 +499,14 @@
       qBox.appendChild(mkAimsLikert("q_rights", RIGHTS_ITEM));
     }
 
-    // Exploratory
+    // Exploratory clarity
     qBox.appendChild(mkAimsLikert("q_clarity", CLARITY_ITEM));
 
-    // Recall last
+    // Recall last (as planned)
     qBox.appendChild(mkMC("q_recall", RECALL_Q, RECALL_OPTS));
+
+    // Hard attention check (added; gated)
+    qBox.appendChild(mkAimsLikert("q_attn", ATTN_Q));
   }
 
   // ---- Flow ----
@@ -312,13 +519,16 @@
 
     renderBanner();
     stimulusShownAt = performance.now();
-    enableAfter(3000); // 3.0s reading gate
+    startStimulusGate();
   });
 
   toQuestionsBtn.addEventListener("click", () => {
     document.getElementById("stimulusStage").style.display = "none";
     document.getElementById("questionStage").style.display = "block";
+    questionShownAt = performance.now();
     renderQuestions();
+    startQuestionGate();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   async function send(payload) {
@@ -338,9 +548,16 @@
     e.preventDefault();
 
     const msg = document.getElementById("msg");
-    const submitBtn = document.getElementById("submitBtn");
     msg.className = "muted";
     msg.textContent = "";
+    clearMarks();
+
+    // Minimum-time gate (front-end)
+    if (!questionTimeOk) {
+      msg.className = "error";
+      msg.textContent = "Please take a moment to read and answer carefully. Submit will unlock shortly.";
+      return;
+    }
 
     const q_rights = getRadioInt("q_rights");
     const q_harm1 = getRadioInt("q_harm1");
@@ -348,14 +565,56 @@
     const q_harm3 = getRadioInt("q_harm3");
     const q_clarity = getRadioInt("q_clarity");
     const q_recall = getRadioInt("q_recall");
+    const q_attn = getRadioInt("q_attn");
 
-    if ([q_rights, q_harm1, q_harm2, q_harm3, q_clarity, q_recall].some(v => v === null)) {
+    const required = [
+      ["q_rights", q_rights],
+      ["q_harm1", q_harm1],
+      ["q_harm2", q_harm2],
+      ["q_harm3", q_harm3],
+      ["q_clarity", q_clarity],
+      ["q_recall", q_recall],
+      ["q_attn", q_attn]
+    ];
+
+    const missing = required.filter(([_, v]) => v === null).map(([k, _]) => k);
+
+    if (missing.length > 0) {
+      missing.forEach(markMissing);
       msg.className = "error";
-      msg.textContent = "Please answer all questions.";
+      msg.textContent = "Please answer all questions (highlighted).";
+      scrollToQuestion(missing[0]);
       return;
     }
 
-    // Correct recall option
+    // Hard attention check gate: must be "Somewhat disagree" (value 4)
+    const attention_pass = (q_attn === 4) ? 1 : 0;
+    if (!attention_pass) {
+      markMissing("q_attn");
+      msg.className = "error";
+      msg.textContent = "Please follow the instruction in the attention check to continue.";
+      scrollToQuestion("q_attn");
+      return;
+    }
+
+    // Optional response-quality confirmation (does not block, but prevents accidental straightlining)
+    const mainBlock = [q_rights, q_harm1, q_harm2, q_harm3, q_clarity];
+    const allSame = mainBlock.every(v => v === mainBlock[0]);
+    const allNoOpinion = mainBlock.every(v => v === 7);
+
+    if (allNoOpinion) {
+      const ok = window.confirm(
+        "You selected “No opinion” for every attitude question. Click OK to submit if this is intentional, or Cancel to review your answers."
+      );
+      if (!ok) return;
+    } else if (allSame) {
+      const ok = window.confirm(
+        "You selected the same response for every attitude question. This can be correct. Click OK to submit if intentional, or Cancel to review your answers."
+      );
+      if (!ok) return;
+    }
+
+    // Correct recall option (not used for exclusion)
     let correct = 5; // default "did not say"
     if (condition_concept === "alive" && condition_polarity === "is") correct = 1;
     if (condition_concept === "alive" && condition_polarity === "is_not") correct = 2;
@@ -385,7 +644,15 @@
       q_recall: q_recall,
       recall_pass: recall_pass,
 
+      // Added QC fields (do not alter levers/DVs)
+      q_attn: q_attn,
+      attention_pass: attention_pass,
+      stimulus_time_gate_pass: stimulusTimeOk ? 1 : 0,
+      stimulus_copy_gate_pass: stimulusCopyOk ? 1 : 0,
+      stimulus_copy_first_correct_ms: stimulusCopyFirstCorrectMs,
+
       stimulus_read_ms: stimulusShownAt ? Math.round(performance.now() - stimulusShownAt) : null,
+      question_visible_gate_ms: questionShownAt ? Math.round(performance.now() - questionShownAt) : null,
       duration_ms: Math.round(performance.now() - t0),
 
       user_agent: navigator.userAgent,
@@ -393,6 +660,7 @@
     };
 
     submitBtn.disabled = true;
+    msg.className = "muted";
     msg.textContent = "Submitting...";
 
     try {
